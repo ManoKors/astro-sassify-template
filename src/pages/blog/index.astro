@@ -76,6 +76,11 @@ const posts = [
 const categories = ['All', ...new Set(posts.map(post => post.category))];
 ---
 
+<script>
+  import Alpine from 'alpinejs';
+  Alpine.start();
+</script>
+
 <Layout title="Blog - SaaSify" description="Latest product updates, feature releases, and company news from SaaSify.">
   <Header />
   <main x-data="{ selectedCategory: 'All' }">
@@ -88,7 +93,7 @@ const categories = ['All', ...new Set(posts.map(post => post.category))];
     <!-- Category Filter -->
     <div class="container-custom py-8">
       <div class="flex flex-wrap gap-4 justify-center mb-12">
-        <template x-for="category in ['All', ...new Set(<?= JSON.stringify(posts.map(post => post.category)) ?>)]" :key="category">
+        <template x-for="category in categories" :key="category">
           <button 
             @click="selectedCategory = category" 
             :class="selectedCategory === category 
@@ -102,7 +107,7 @@ const categories = ['All', ...new Set(posts.map(post => post.category))];
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <template x-for="(post, index) in <?= JSON.stringify(posts) ?>.filter(post => selectedCategory === 'All' || post.category === selectedCategory)" :key="post.id">
+        <template x-for="(post, index) in posts.filter(post => selectedCategory === 'All' || post.category === selectedCategory)" :key="post.id">
           <div class="card border border-gray-200 dark:border-gray-700 overflow-hidden slide-up" :style="'animation-delay: ' + (index * 100) + 'ms'">
             <a :href="'/blog/' + post.id" class="block">
               <img 
