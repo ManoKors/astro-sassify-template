@@ -3,7 +3,6 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import HeroSection from '../../components/HeroSection.astro';
-import { useState } from 'astro/components';
 
 const posts = [
   {
@@ -75,75 +74,69 @@ const posts = [
 ];
 
 const categories = ['All', ...new Set(posts.map(post => post.category))];
-const [selectedCategory, setSelectedCategory] = useState('All');
-
-const filteredPosts = selectedCategory === 'All' 
-  ? posts 
-  : posts.filter(post => post.category === selectedCategory);
 ---
 
 <Layout title="Blog - SaaSify" description="Latest product updates, feature releases, and company news from SaaSify.">
   <Header />
-  <main>
+  <main x-data="{ selectedCategory: 'All' }">
     <HeroSection 
       title="Latest Updates & News" 
-      highlightText={selectedCategory}
+      highlightText="{ selectedCategory }"
       description="Stay up to date with our latest product updates, feature releases, and company news."
     />
     
     <!-- Category Filter -->
     <div class="container-custom py-8">
       <div class="flex flex-wrap gap-4 justify-center mb-12">
-        {categories.map((category) => (
+        <template x-for="category in ['All', ...new Set(<?= JSON.stringify(posts.map(post => post.category)) ?>)]" :key="category">
           <button 
-            onClick={() => setSelectedCategory(category)} 
-            class={`px-4 py-2 rounded-full font-medium text-sm transition-colors ${
-              selectedCategory === category 
-                ? 'bg-primary-600 text-white hover:bg-primary-700' 
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-            }`}
+            @click="selectedCategory = category" 
+            :class="selectedCategory === category 
+              ? 'bg-primary-600 text-white hover:bg-primary-700' 
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'"
+            class="px-4 py-2 rounded-full font-medium text-sm transition-colors"
           >
-            {category}
+            <span x-text="category"></span>
           </button>
-        ))}
+        </template>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredPosts.map((post, index) => (
-          <div class="card border border-gray-200 dark:border-gray-700 overflow-hidden slide-up" style={'animation-delay: ' + (index * 100) + 'ms'}>
-            <a href={'/blog/' + post.id} class="block">
+        <template x-for="(post, index) in <?= JSON.stringify(posts) ?>.filter(post => selectedCategory === 'All' || post.category === selectedCategory)" :key="post.id">
+          <div class="card border border-gray-200 dark:border-gray-700 overflow-hidden slide-up" :style="'animation-delay: ' + (index * 100) + 'ms'">
+            <a :href="'/blog/' + post.id" class="block">
               <img 
-                src={post.image} 
-                alt={post.title}
+                :src="post.image" 
+                :alt="post.title"
                 class="w-full h-48 object-cover"
                 loading="lazy"
               />
             </a>
             <div class="p-6">
               <div class="flex items-center mb-4">
-                <span class="text-sm font-medium text-primary-600 dark:text-primary-400">{post.category}</span>
+                <span class="text-sm font-medium text-primary-600 dark:text-primary-400" x-text="post.category"></span>
                 <span class="mx-2 text-gray-300 dark:text-gray-600">•</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{post.date}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400" x-text="post.date"></span>
               </div>
-              <a href={'/blog/' + post.id} class="block mb-3">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{post.title}</h2>
+              <a :href="'/blog/' + post.id" class="block mb-3">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors" x-text="post.title"></h2>
               </a>
-              <p class="text-gray-600 dark:text-gray-300 mb-6">{post.excerpt}</p>
+              <p class="text-gray-600 dark:text-gray-300 mb-6" x-text="post.excerpt"></p>
               <div class="flex items-center">
                 <img 
-                  src={post.authorAvatar} 
-                  alt={post.author} 
+                  :src="post.authorAvatar" 
+                  :alt="post.author" 
                   class="w-10 h-10 rounded-full mr-3 object-cover"
                   loading="lazy"
                 />
                 <div>
-                  <p class="font-medium text-gray-900 dark:text-white">{post.author}</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">{post.authorRole}</p>
+                  <p class="font-medium text-gray-900 dark:text-white" x-text="post.author"></p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400" x-text="post.authorRole"></p>
                 </div>
               </div>
             </div>
           </div>
-        ))}
+        </template>
       </div>
     </div>
   </main>
