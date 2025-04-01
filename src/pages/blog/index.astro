@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import HeroSection from '../../components/HeroSection.astro';
+import { useState } from 'astro/components';
 
 const posts = [
   {
@@ -73,7 +74,12 @@ const posts = [
   }
 ];
 
-const categories = [...new Set(posts.map(post => post.category))];
+const categories = ['All', ...new Set(posts.map(post => post.category))];
+const [selectedCategory, setSelectedCategory] = useState('All');
+
+const filteredPosts = selectedCategory === 'All' 
+  ? posts 
+  : posts.filter(post => post.category === selectedCategory);
 ---
 
 <Layout title="Blog - SaaSify" description="Latest product updates, feature releases, and company news from SaaSify.">
@@ -81,25 +87,29 @@ const categories = [...new Set(posts.map(post => post.category))];
   <main>
     <HeroSection 
       title="Latest Updates & News" 
-      highlightText="Updates"
+      highlightText={selectedCategory}
       description="Stay up to date with our latest product updates, feature releases, and company news."
     />
     
     <!-- Category Filter -->
     <div class="container-custom py-8">
       <div class="flex flex-wrap gap-4 justify-center mb-12">
-        <a href="#" class="px-4 py-2 rounded-full bg-primary-600 text-white font-medium text-sm hover:bg-primary-700 transition-colors">
-          All Posts
-        </a>
         {categories.map((category) => (
-          <a href={'#' + category.toLowerCase().replace(/\s+/g, '-')} class="px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <button 
+            onClick={() => setSelectedCategory(category)} 
+            class={`px-4 py-2 rounded-full font-medium text-sm transition-colors ${
+              selectedCategory === category 
+                ? 'bg-primary-600 text-white hover:bg-primary-700' 
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
             {category}
-          </a>
+          </button>
         ))}
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post, index) => (
+        {filteredPosts.map((post, index) => (
           <div class="card border border-gray-200 dark:border-gray-700 overflow-hidden slide-up" style={'animation-delay: ' + (index * 100) + 'ms'}>
             <a href={'/blog/' + post.id} class="block">
               <img 
@@ -134,15 +144,6 @@ const categories = [...new Set(posts.map(post => post.category))];
             </div>
           </div>
         ))}
-      </div>
-
-      <div class="mt-12 flex justify-center">
-        <a href="#" class="btn-outline">
-          Load More Articles
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v10.586l3.293-3.293a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L9 14.586V4a1 1 0 011-1z" clip-rule="evenodd" />
-          </svg>
-        </a>
       </div>
     </div>
   </main>
